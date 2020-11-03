@@ -3,6 +3,16 @@ const fs = require('fs');
 const fetch = require('node-fetch');
 const e = require('express');
 const SESSION_FILE_PATH = './session.json';
+const puppeteer = require('puppeteer');
+
+(async () => {
+  const browser = await puppeteer.launch({args: ['--no-sandbox']});
+  const page = await browser.newPage();
+  await page.goto('http://owlcommand.com');
+  await page.screenshot({path: 'example.png'});
+
+  await browser.close();
+})();
 let sessionCfg;
 if (fs.existsSync(SESSION_FILE_PATH)) { //mengecek apakah udah ada session yang tersimpan
     sessionCfg = require(SESSION_FILE_PATH);
