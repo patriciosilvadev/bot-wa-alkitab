@@ -5,16 +5,15 @@ const e = require('express');
 const SESSION_FILE_PATH = './session.json';
 
 let sessionCfg;
-if (fs.existsSync(SESSION_FILE_PATH)) { //mengecek apakah udah ada session yang tersimpan
+if (fs.existsSync(SESSION_FILE_PATH)) { //Checking the session
     sessionCfg = require(SESSION_FILE_PATH);
 }
 
-// ini sama kaya function cuma disederhanain aja biar lebih ringkes
-// kalo di function kan, async function searchOnBible (Ppassage, Pchapter, Pverse = "") { fungsinya }
+// Make a function searchOnBible with Async
 
 const searchOnBible = async (Ppassage, Pchapter, Pverse = "") => {
 
-// pada parameter Pverse diberi = "" (maksutnya untuk memberi nilai default apabila tidak ada value / undefined)
+// in parameter Pverse we declare = "" (its mean to give default value if there is no value / undefined)
 
     try {
         const data = await fetch(`https://api-alkitab.herokuapp.com/v1/passage/${Ppassage}/${Pchapter}/${Pverse}`).then(res => res.json())
@@ -22,7 +21,7 @@ const searchOnBible = async (Ppassage, Pchapter, Pverse = "") => {
         const { title, chapter } = response.passage[0]
         const { verse } = chapter.verses
 
-// const { } = object , adalah destructing object , gunanya untuk menyederhanakan object , lebih jelasnya bisa search google aja
+// const { } = is destructing object
 
         return {
             message, status, title, verse
@@ -40,14 +39,13 @@ const searchOnBible = async (Ppassage, Pchapter, Pverse = "") => {
 const client = new Client({ puppeteer: { headless: true }, session: sessionCfg });
 
 client.initialize();
-client.on('qr', (qr) => { //menampilkan qr code dan menerima qr code
+client.on('qr', (qr) => { //to show the Qr Code of the whatsapp
     console.log('QR RECEIVED', qr);
 });
 client.on('authenticated', (session) => {
     console.log('AUTHENTICATED', session);
     sessionCfg = session;
-    fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function (err) {  //jika session belum tersimpan maka akan membuat session baru 
-        if (err) {
+    fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function (err) {  //if there no session, so make the new one
             console.error(err);
         }
     });
@@ -62,7 +60,7 @@ client.on('message', async msg => {
 
     if (msg.body.toLowerCase().startsWith("#alkitab")) {
 
-	// .split berfungsi membagi / memisahkan (text / string) kedalam json array menurut delimeter / parameternya
+	// .split is to split text / string into json array with its delimeter / parameter
         const pesan = msg.body.split(" ")
         const surat = pesan[1]
         const ayat = pesan[2]
@@ -78,9 +76,7 @@ client.on('message', async msg => {
             if (result.status == 200) {
                 let fullVerse = '';
 		
-		// .map berfungsi melooping json array , dalam .map kita bisa mendapatkan value dan index sijson tsb
-		// sebenernya fine" aja kalo mau pake foreach , for , dll , cuma cara ini lebih ringkes dan readable mnurut gw
-
+		// .map is looping the array to get array and its index
                 result.verse.map((data, index) => {
                     isNumbering = verse == undefined ? `${index + 1}. ` : '';
                     fullVerse += `${isNumbering}${data.text}\n\n`
